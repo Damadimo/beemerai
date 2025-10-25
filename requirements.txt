@@ -1,0 +1,21 @@
+# AI Car Voice Assistant - Python Dependencies
+
+# Audio I/O
+sounddevice>=0.5.0
+soundfile>=0.13.0
+
+# OpenAI library for Boson API
+openai>=1.0.0
+
+# YAML parsing for intent rules
+pyyaml>=6.0.0
+
+# Retry logic with exponential backoff
+tenacity>=8.0.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Testing
+pytest>=7.0.0
+

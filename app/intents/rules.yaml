@@ -1,2 +1,33 @@
 # Intent Rules Configuration
-# YAML configuration for intent matching rules
+# Regex patterns for matching user speech to intents
+# Rules are evaluated in order - first match wins
+
+intents:
+  # Emergency Stop - highest priority
+  - name: ESTOP
+    patterns:
+      - '\b(emergency\s+stop|e-?stop|full\s+stop|stop\s+now|stop\s+immediately)\b'
+      - '\bstop\b'
+    description: "Emergency stop command"
+  
+  # Navigation - to cafeteria/canteen/food court
+  - name: NAVIGATE
+    patterns:
+      - '\b(take|drive|go|bring|navigate|head|move)\s+(me\s+)?(to|towards?)\s+(the\s+)?(cafeteria|canteen|food\s+court|cafe)\b'
+      - '\b(cafeteria|canteen|food\s+court)\b'
+    slots:
+      destination: cafeteria
+    description: "Navigate to a destination"
+  
+  # Play Radio - music/radio commands
+  - name: PLAY_RADIO
+    patterns:
+      - '\b(play|start|turn\s+on|put\s+on)\s+(something\s+from\s+)?(the\s+)?(radio|music)\b'
+      - '\b(radio|music|song|tune)\b'
+    description: "Play radio or music"
+  
+  # Help - what can you do
+  - name: HELP
+    patterns:
+      - '\b(help|what\s+can\s+you\s+do|commands|options|capabilities)\b'
+    description: "Show available commands"

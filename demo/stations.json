@@ -1,14 +1,10 @@
 {
   "stations": [
     {
-      "name": "Local FM",
-      "frequency": "88.5",
-      "genre": "News"
-    },
-    {
-      "name": "Music Station",
-      "frequency": "92.3",
-      "genre": "Pop"
+      "name": "92.5 FM",
+      "url": "http://ice1.somafm.com/groovesalad-128-mp3",
+      "genre": "Music"
     }
-  ]
+  ],
+  "default": "92.5 FM"
 }
