@@ -1,0 +1,14 @@
+{
+  "stations": [
+    {
+      "name": "Local FM",
+      "frequency": "88.5",
+      "genre": "News"
+    },
+    {
+      "name": "Music Station",
+      "frequency": "92.3",
+      "genre": "Pop"
+    }
+  ]
+}
