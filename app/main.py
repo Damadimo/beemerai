@@ -5,6 +5,8 @@ Voice-controlled car assistant with push-to-talk interface.
 
 import os
 import logging
+import time
+import threading
 from dotenv import load_dotenv
 
 from app.logging_cfg import setup_logging
@@ -93,26 +95,43 @@ def main():
                     except Exception as e:
                         logger.error(f"TTS/playback failed: {e}")
                 
-                # Send Arduino commands AFTER TTS
-                if result.get('send_arduino_run'):
-                    logger.info("Executing navigation on Arduino...")
-                    arduino.send_run()
-                
-                if result.get('send_arduino_dance'):
-                    logger.info("Executing dance on Arduino...")
-                    arduino.send_dance()
-                
-                # Play dance song AFTER TTS (if dance command)
+                # Handle dance command - start music BEFORE Arduino signal
                 if result.get('play_dance_song'):
                     dance_song_path = os.getenv('DANCE_SONG')
                     if dance_song_path and os.path.exists(dance_song_path):
-                        logger.info("Playing dance song...")
-                        try:
-                            play_local_audio(dance_song_path)
-                        except Exception as e:
-                            logger.error(f"Dance song playback failed: {e}")
+                        logger.info("Starting dance song...")
+                        
+                        # Start playing song in a non-blocking way
+                        def play_song():
+                            try:
+                                play_local_audio(dance_song_path)
+                            except Exception as e:
+                                logger.error(f"Dance song playback failed: {e}")
+                        
+                        song_thread = threading.Thread(target=play_song, daemon=True)
+                        song_thread.start()
+                        
+                        # Give song a moment to start
+                        time.sleep(0.5)
+                        
+                        # NOW send dance signal to Arduino
+                        if result.get('send_arduino_dance'):
+                            logger.info("Executing dance on Arduino (with music!)...")
+                            arduino.send_dance()
+                        
+                        # Wait for song to finish
+                        song_thread.join()
                     else:
                         logger.warning(f"Dance song not found: {dance_song_path}")
+                        # Still send dance signal even without music
+                        if result.get('send_arduino_dance'):
+                            logger.info("Executing dance on Arduino (no music)...")
+                            arduino.send_dance()
+                
+                # Send Arduino RUN command AFTER TTS (for navigation)
+                elif result.get('send_arduino_run'):
+                    logger.info("Executing navigation on Arduino...")
+                    arduino.send_run()
                 
                 # Handle radio state AFTER TTS finishes
                 if result.get('start_radio'):
