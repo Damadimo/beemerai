@@ -1,63 +1,67 @@
-# AI Car Voice Assistant - MVP
+# 🚗 Beemer AI - Your Voice-Controlled Car Companion
 
-A laptop-hosted voice assistant that controls an RC car via voice commands. The system uses push-to-talk (PTT) interaction, transcribes speech using Boson AI's ASR, processes intents, and controls the car through a simple device API.
+**Talk to your car. Watch it respond. It's that simple.**
 
-**Current Status:** Phase 2 Complete - ASR Integration ✓
+Beemer AI is a fully voice-controlled RC car that listens to your commands, chats with you like a friend, plays music, and even dances on demand! Built with the AI models from Boson AI, this isn't just a remote control car... it's A FRIEND!!!!
 
-## Project Overview
+## What makes this idea SICK?
 
-This MVP demonstrates a voice-controlled car assistant with these capabilities:
-- Push-to-talk voice input
-- Automatic speech recognition (ASR) via Boson AI
-- Intent-based command routing
-- Simulated car control (hardware integration in later phases)
-- Text-to-speech (TTS) responses
+**It actually TALKS back to you.** Say "Take me to the cafeteria" and Beemer responds in a natural voice, then drives there. Ask "Can you dance?" and it plays music while performing choreographed moves. It's basically just your homie but with 4 wheels.
+
+**Real AI, Real Conversations.** Thanks to Boson AI's language models:
+- **Speech Recognition** turns your voice into text instantly
+- **Implemented Function Calling** figures out what you actually want based on your input, and calls the right functions accordingly
+- **Text-to-Speech** speaks back with a friendly voice
+- **Physical Actions** via Arduino-controlled hardware LIVE
+
+This is what the future of human-machine interaction looks like!
 
 ## Quick Start
 
-### Prerequisites
+### What You Need
 
-- Python 3.8+ 
-- A working microphone
-- Boson AI API key ([Get it here](https://hackathon.boson.ai))
+- Python 3.8 or newer
+- A microphone (any USB mic works)
+- Boson AI API key (free for hackathon)
+- Arduino Nano (optional, for physical car)
+- ffmpeg installed (`brew install ffmpeg`)
 
-### Installation
+### Setup (5 minutes)
 
-1. **Clone and navigate to the project:**
-   ```bash
-   cd ai-car
-   ```
-
-2. **Create and activate a virtual environment (recommended):**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   make install
-   ```
-
-4. **Configure environment variables:**
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your BOSON_API_KEY
-   ```
-
-### Running the Application
-
-Start the voice assistant:
 ```bash
+# 1. Navigate to project
+cd ai-car
+
+# 2. Create virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# 3. Install everything
+make install
+
+# 4. Configure your API key
+cp .env.example .env
+# Edit .env and add your BOSON_API_KEY
+
+# 5. Add a dance song (optional)
+# Set DANCE_SONG=/path/to/song.mp3 in .env
+
+# 6. Run it!
 make run
 ```
 
-**Usage:**
-1. Press `Enter` to activate push-to-talk
-2. Speak your command (recording lasts 2.5 seconds)
-3. View the transcription in the console
-4. Press `Enter` again for another command
-5. Press `Ctrl+C` to exit
+### How to Use
+
+**Press Enter** to talk to Beemer. That's it!
+
+Try saying:
+- "Take me to the cafeteria" (drives there via Arduino)
+- "Play the radio" (streams 92.5 FM live)
+- "Can you dance for me?" (dances with music!)
+- "Pause the music" (stops radio)
+- "How are you today?" (has a conversation!)
+
+**Press Ctrl+C** to exit.
 
 ## Project Structure
 
@@ -99,130 +103,117 @@ ai-car/
 └── README.md               # This file
 ```
 
+## 🎯 Features
+
+**Voice Commands That Actually Work:**
+- 🗺️ **Navigate**: "Take me to the cafeteria" (sends RUN to Arduino)
+- 📻 **Radio**: "Play the radio" (streams live 92.5 FM)
+- ⏸️ **Pause**: "Pause the music" (stops radio)
+- 💃 **Dance**: "Show me your moves!" (Arduino dance + music)
+- 🛑 **E-Stop**: "Stop!" (emergency halt)
+- 💬 **Chat**: "How are you?" (natural AI conversation)
+
+**The Magic Behind It:**
+- Records your voice when you press Enter
+- Boson AI transcribes speech in real-time
+- Understands your intent (not just keywords!)
+- Executes physical actions via Arduino
+- Responds with natural speech
+- Plays music and manages audio seamlessly
+
+**It's genuinely fun to use.** The car has personality!
+
+## 🎬 Demo Flow
+
+**Watch this happen in real-time:**
+
+```
+You: *Press Enter*
+You: "Hey Beemer, take me to the cafeteria!"
+
+Beemer: "Heading to the cafeteria" 🔊
+        *Arduino receives RUN signal*
+        *Car drives autonomously*
+
+You: *Press Enter*  
+You: "Play some music"
+
+Beemer: "Tuning in to 92.5 FM. Enjoy the music!" 🔊
+        *Live radio streams continuously*
+        🎵 Music playing in background...
+
+You: *Press Enter*
+You: "Can you dance for me?"
+
+Beemer: "Let me show you my moves!" 🔊
+        *Music pauses*
+        *Dance song starts*
+        *Arduino receives DANCE signal*
+        *Car dances in sync with the beat!* 💃
+        
+You: *Press Enter*
+You: "How are you doing today?"
+
+Beemer: "I'm great! Ready to help you with anything you need." 🔊
+        *Natural conversation powered by LLM*
+```
+
+**This is a living, breathing AI companion on wheels!**
+
 ## Configuration
 
-Edit `.env` to configure the application:
+Edit `.env` to customize Beemer:
 
 ```bash
-# Boson AI API
-BOSON_API_KEY=your_api_key_here
-BOSON_BASE_URL=https://hackathon.boson.ai/v1
+# Your API Key
+BOSON_API_KEY=your_key_here
+
+# Arduino Connection
+ARDUINO_PORT=/dev/cu.usbserial-14320
+ARDUINO_BAUD=9600
+
+# Dance Song (use your favorite!)
+DANCE_SONG=/Users/Adam/Music/dance.mp3
 
 # Audio Settings
-AUDIO_SAMPLE_RATE=24000      # 24kHz recommended for Boson
-PTT_SECONDS=2.5              # Recording duration
-TTS_VOICE=belinda            # TTS voice (Phase 5)
-
-# Intent Processing
-USE_LLM_FALLBACK=false       # Use LLM for unmatched intents
-
-# Logging
-LOG_LEVEL=INFO               # DEBUG, INFO, WARNING, ERROR
+PTT_SECONDS=2.5
+TTS_VOICE=belinda
 ```
 
-## Development Phases
+## Architecture
 
-### ✅ Phase 1: Core Scaffolding
-- Project structure setup
-- Basic file organization
-
-### ✅ Phase 2: Boson ASR Integration (CURRENT)
-- Audio recording with sounddevice
-- WAV file handling (24kHz, mono, 16-bit PCM)
-- Boson ASR transcription via OpenAI-compatible API
-- Retry logic with exponential backoff
-- PTT loop with clean exit handling
-
-### 🔲 Phase 3: Intent Routing
-- Rule-based intent matching with regex
-- YAML configuration for patterns
-- Optional LLM fallback for complex queries
-
-### 🔲 Phase 4: Command Handlers & Dispatcher
-- Navigate command (drive to cafeteria)
-- Play radio command
-- Emergency stop command
-- Intent-to-handler registry
-
-### 🔲 Phase 5: TTS Integration
-- Boson TTS for voice responses
-- Audio playback via ffplay
-- Confirmation messages
-
-### 🔲 Phase 6: Device Abstraction
-- Simulated car for testing
-- Route execution with timing
-- Command sequence API
-
-### 🔲 Phase 7+: Physical Hardware
-- Serial communication with RC car
-- ESP32 firmware integration
-
-## API Reference
-
-### Audio Recording
-
-```python
-from app.audio_io import record_ptt
-
-# Record 2.5 seconds at 24kHz
-wav_path = record_ptt()
+**The Flow:**
+```
+You speak → Microphone → ASR (Boson) → Text
+         → Intent Matching → Command Handler
+         → TTS Response (Boson) → Speaker
+         → Arduino Control (RUN/DANCE signals)
+         → Physical Action!
 ```
 
-### ASR Transcription
 
-```python
-from app.boson_api import asr_transcribe
+## Why This Matters
 
-# Transcribe WAV file
-transcript = asr_transcribe("path/to/audio.wav")
-```
+This project demonstrates:
+- **Multimodal AI** (voice in, voice out, physical actions)
+- **Real-time processing** (fast ASR + TTS pipeline)
+- **Intent-based systems** (understands meaning, not just keywords)
+- **Hardware integration** (AI controlling physical devices)
+- **Natural interactions** (conversations, not just commands)
 
-## Troubleshooting
 
-**"BOSON_API_KEY environment variable not set"**
-- Copy `.env.example` to `.env` and add your API key
+## Tech Stack
 
-**"Audio recording failed"**
-- Check that your microphone is connected and accessible
-- Try adjusting `AUDIO_SAMPLE_RATE` in `.env`
+- **AI**: Boson AI (ASR, TTS, LLM)
+- **Audio**: sounddevice, soundfile
+- **Hardware**: Arduino Nano via PySerial
+- **Streaming**: ffplay for live radio
+- **Language**: Python 3.8+
 
-**"No module named 'sounddevice'"**
-- Run `make install` to install dependencies
 
-**Transcription fails**
-- Verify your API key is correct
-- Check internet connectivity
-- Review logs for specific error messages
+## Credits
 
-## Makefile Commands
-
-```bash
-make help      # Show available commands
-make install   # Install Python dependencies
-make run       # Run the voice assistant
-make test      # Run unit tests
-make clean     # Clean build artifacts and temp files
-```
-
-## Technical Details
-
-### Audio Format
-- **Sample Rate:** 24kHz (Boson recommended)
-- **Channels:** Mono
-- **Encoding:** 16-bit PCM
-- **Format:** WAV
-
-### API Integration
-- **Endpoint:** `https://hackathon.boson.ai/v1`
-- **ASR Model:** `higgs-audio-understanding-Hackathon`
-- **Method:** OpenAI-compatible `/v1/chat/completions`
-- **Retry Strategy:** 3 attempts with exponential backoff (2-10s)
-
-## Contributing
-
-This is an MVP project following a phased development approach. Each phase builds incrementally on the previous one.
-
-## License
-
-MIT License - See LICENSE file for details
+Built with Boson AI's incredible hackathon models:
+- `higgs-audio-understanding-Hackathon` (ASR)
+- `higgs-audio-generation-Hackathon` (TTS)
+- `Qwen3-32B-non-thinking-Hackathon` (Conversations)
