@@ -3,15 +3,17 @@ AI Car Main Application
 Voice-controlled car assistant with push-to-talk interface.
 """
 
+import os
 import logging
 from dotenv import load_dotenv
 
 from app.logging_cfg import setup_logging
-from app.audio_io import record_ptt, play_audio
+from app.audio_io import record_ptt, play_audio, play_local_audio
 from app.boson_api import asr_transcribe, tts_speak, tts_speak_custom_voice
 from app.intents import match_intent
 from app.dispatcher import dispatch
 from app.radio_player import get_radio_player
+from app.arduino_client import get_arduino_client
 
 # Load environment variables from .env file
 load_dotenv()
@@ -38,8 +40,9 @@ def main():
     logger.info("Press Enter to start recording, Ctrl+C to exit")
     logger.info("")
     
-    # Get radio player
+    # Get radio player and Arduino client
     radio = get_radio_player()
+    arduino = get_arduino_client()
     
     try:
         while True:
@@ -47,7 +50,7 @@ def main():
             input()
             logger.info("PTT activated - starting recording...")
             
-            # Pause radio during recording if playing
+            # Check if radio is playing BEFORE we stop it
             radio_was_playing = radio.is_playing()
             if radio_was_playing:
                 logger.info("Pausing radio for voice input...")
@@ -73,37 +76,62 @@ def main():
                 logger.info(f"INTENT: {intent}")
                 
                 # Dispatch to handler (Phase 4)
+                # Pass radio_was_playing state so handlers can see it
                 result = dispatch(intent, car=None)  # car will be added in Phase 6
                 logger.info(f"RESULT: {result.get('message', 'No message')}")
                 
-                # Speak response (Phase 5)
+                # Speak response (Phase 5) - always use simple TTS
                 response_text = result.get('message', '')
-                use_custom_voice = result.get('use_custom_voice', False)
                 
                 if response_text:
                     try:
-                        # Use custom voice for conversations, simple TTS for commands
-                        if use_custom_voice:
-                            logger.info("Using custom voice for conversational response")
-                            tts_path = tts_speak_custom_voice(response_text)
-                        else:
-                            tts_path = tts_speak(response_text)
+                        # Use simple TTS for all responses (faster and more reliable)
+                        tts_path = tts_speak(response_text)
                         
                         # Play TTS response (blocking - waits until speech finishes)
                         play_audio(tts_path)
                     except Exception as e:
                         logger.error(f"TTS/playback failed: {e}")
                 
-                # Resume radio AFTER TTS finishes (if it was playing before)
-                if radio_was_playing:
+                # Send Arduino commands AFTER TTS
+                if result.get('send_arduino_run'):
+                    logger.info("Executing navigation on Arduino...")
+                    arduino.send_run()
+                
+                if result.get('send_arduino_dance'):
+                    logger.info("Executing dance on Arduino...")
+                    arduino.send_dance()
+                
+                # Play dance song AFTER TTS (if dance command)
+                if result.get('play_dance_song'):
+                    dance_song_path = os.getenv('DANCE_SONG')
+                    if dance_song_path and os.path.exists(dance_song_path):
+                        logger.info("Playing dance song...")
+                        try:
+                            play_local_audio(dance_song_path)
+                        except Exception as e:
+                            logger.error(f"Dance song playback failed: {e}")
+                    else:
+                        logger.warning(f"Dance song not found: {dance_song_path}")
+                
+                # Handle radio state AFTER TTS finishes
+                if result.get('start_radio'):
+                    # Start radio for play_radio command
+                    logger.info("Starting radio playback now...")
+                    radio.play()
+                elif intent.name == "PAUSE_RADIO":
+                    # Don't resume radio if user wanted to pause it
+                    logger.info("Radio remains paused (user requested)")
+                elif radio_was_playing:
+                    # Resume radio for other commands (conversations, help, etc)
                     logger.info("Resuming radio playback...")
                     radio.play()
                 
                 logger.info("")
             except Exception as e:
                 logger.error(f"Processing failed: {e}")
-                # Resume radio even if processing failed
-                if radio_was_playing:
+                # Resume radio even if processing failed (unless it was a pause command)
+                if radio_was_playing and intent.name != "PAUSE_RADIO":
                     radio.play()
                 logger.info("")
     
@@ -116,6 +144,9 @@ def main():
         if radio.is_playing():
             logger.info("Stopping radio...")
             radio.stop()
+        
+        # Disconnect Arduino
+        arduino.disconnect()
         
         logger.info("=" * 60)
 

@@ -104,3 +104,30 @@ def play_audio(wav_path: str) -> None:
     except Exception as e:
         logger.error(f"Audio playback failed: {e}")
         raise
+
+
+def play_local_audio(file_path: str) -> None:
+    """
+    Play a local audio file (MP3, WAV, etc.).
+    
+    Supports various formats via soundfile.
+    Blocks until playback is complete.
+    
+    Args:
+        file_path: Path to audio file to play
+    """
+    try:
+        logger.info(f"Playing local audio: {file_path}")
+        
+        # Read audio file (soundfile supports many formats)
+        audio_data, sample_rate = sf.read(file_path)
+        
+        # Play audio (blocking)
+        sd.play(audio_data, sample_rate, blocking=True)
+        sd.wait()
+        
+        logger.info("Audio playback complete")
+    
+    except Exception as e:
+        logger.error(f"Local audio playback failed: {e}")
+        raise

@@ -4,6 +4,7 @@ Handles navigation requests to destinations.
 """
 
 import logging
+from app.arduino_client import get_arduino_client
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ def handle(intent, car):
     Handle navigation intent - drive to a destination.
     
     For MVP, we only support "cafeteria" destination.
-    In Phase 6, this will execute actual car movements.
+    Sends RUN command to Arduino to execute the route.
     
     Args:
         intent: Intent object with destination in slots
@@ -24,16 +25,21 @@ def handle(intent, car):
     logger.info(f"🚗 Navigation command: Going to {destination}")
     
     if destination == "cafeteria":
-        # Phase 6 will use: car.sequence(ROUTES["cafeteria"])
         logger.info(f"   Route: Start → Cafeteria")
-        logger.info(f"   Status: Route loaded (simulator mode)")
-        logger.info(f"   Action: Will execute route in Phase 6")
+        logger.info(f"   Will send RUN command to Arduino after TTS")
+        
+        return {
+            "status": "acknowledged",
+            "destination": destination,
+            "message": f"Heading to the {destination}",
+            "send_arduino_run": True  # Signal to send RUN after TTS
+        }
     else:
         logger.warning(f"   Unknown destination: {destination}")
         logger.info(f"   Available destinations: cafeteria")
-    
-    return {
-        "status": "acknowledged",
-        "destination": destination,
-        "message": f"Heading to the {destination}"
-    }
+        
+        return {
+            "status": "error",
+            "destination": destination,
+            "message": f"Sorry, I don't know how to get to {destination}"
+        }

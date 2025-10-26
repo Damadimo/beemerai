@@ -6,7 +6,7 @@ Routes intents to their command handlers and executes them.
 import logging
 from app.intents import Intent
 from app.intents.fallback_llm import chat_with_car
-from app.commands import navigate, play_radio, estop
+from app.commands import navigate, play_radio, pause_radio, dance, estop
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 INTENT_HANDLERS = {
     "NAVIGATE": navigate.handle,
     "PLAY_RADIO": play_radio.handle,
+    "PAUSE_RADIO": pause_radio.handle,
+    "DANCE": dance.handle,
     "ESTOP": estop.handle,
 }
 
@@ -76,11 +78,12 @@ def handle_help() -> dict:
     logger.info(f"   Available commands:")
     logger.info(f"   - 'Take me to the cafeteria' → Navigate to cafeteria")
     logger.info(f"   - 'Play the radio' → Start music playback")
+    logger.info(f"   - 'Pause' → Stop the radio")
     logger.info(f"   - 'Stop' → Emergency stop")
     
     return {
         "status": "acknowledged",
-        "message": "I can drive to the cafeteria or play the radio. What would you like?"
+        "message": "I can drive to the cafeteria, play the radio, or chat with you. What would you like?"
     }
 
 
@@ -89,13 +92,13 @@ def handle_unknown(intent: Intent) -> dict:
     Handle UNKNOWN intent - have a conversation with the car.
     
     Uses LLM to generate natural conversational responses.
-    The response will be spoken with custom voice in main.py.
+    Uses simple TTS (not custom voice) for reliability.
     
     Args:
         intent: Intent object with raw text
     
     Returns:
-        dict: Conversation response with custom_voice flag
+        dict: Conversation response
     """
     logger.info(f"💬 Conversational input: '{intent.raw_text}'")
     
@@ -106,13 +109,11 @@ def handle_unknown(intent: Intent) -> dict:
         
         return {
             "status": "conversation",
-            "message": car_response,
-            "use_custom_voice": True  # Signal to use custom voice TTS
+            "message": car_response
         }
     except Exception as e:
         logger.error(f"Conversation failed: {e}")
         return {
             "status": "error",
-            "message": "Sorry, I'm having trouble thinking right now.",
-            "use_custom_voice": False
+            "message": "Sorry, I'm having trouble thinking right now."
         }

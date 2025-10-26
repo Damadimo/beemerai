@@ -3,11 +3,18 @@
 # Rules are evaluated in order - first match wins
 
 intents:
-  # Emergency Stop - highest priority
+  # Pause Radio - check before ESTOP to allow "pause" without emergency stop
+  - name: PAUSE_RADIO
+    patterns:
+      - '\b(pause|turn\s+off|stop)\s+(the\s+)?(radio|music)\b'
+      - '\bpause\b'
+    description: "Pause/stop radio playback"
+  
+  # Emergency Stop - highest priority for car movement
   - name: ESTOP
     patterns:
       - '\b(emergency\s+stop|e-?stop|full\s+stop|stop\s+now|stop\s+immediately)\b'
-      - '\bstop\b'
+      - '\bstop\s+(the\s+)?car\b'
     description: "Emergency stop command"
   
   # Navigation - to cafeteria/canteen/food court
@@ -25,6 +32,12 @@ intents:
       - '\b(play|start|turn\s+on|put\s+on)\s+(something\s+from\s+)?(the\s+)?(radio|music)\b'
       - '\b(radio|music|song|tune)\b'
     description: "Play radio or music"
+  
+  # Dance - make the car dance
+  - name: DANCE
+    patterns:
+      - '\b(dance|do\s+a\s+dance|show\s+me\s+(your\s+)?moves|bust\s+a\s+move)\b'
+    description: "Perform a dance routine"
   
   # Help - what can you do
   - name: HELP

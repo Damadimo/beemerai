@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 
 # Define the possible intent names for MVP
-IntentName = Literal["NAVIGATE", "PLAY_RADIO", "ESTOP", "HELP", "UNKNOWN"]
+IntentName = Literal["NAVIGATE", "PLAY_RADIO", "PAUSE_RADIO", "DANCE", "ESTOP", "HELP", "UNKNOWN"]
 
 
 @dataclass
